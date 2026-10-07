@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Welcome</title>
+  </head>
+
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+    "
+  >
+    <div
+      style="
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 10px;
+      "
+    >
+      <h1 style="color: #333333; margin-bottom: 20px">
+        Welcome, <%=user.username %>!
+      </h1>
+
+      <p
+        style="font-size: 16px; color: #555555; line-height: 1.6"
+      >
+        Thank you for creating an account with us.
+      </p>
+
+      <p
+        style="font-size: 16px; color: #555555; line-height: 1.6"
+      >
+        Your account has been successfully created.
+      </p>
+
+      <div style="text-align: center; margin: 30px 0">
+        <a
+          href="<%=verificationLink%>"
+          style="
+            display: inline-block;
+            padding: 14px 25px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 16px;
+          "
+        >
+          Verify Your Email
+        </a>
+      </div>
+
+      <p
+        style="font-size: 14px; color: #777777; line-height: 1.5"
+      >
+        If you did not create this account, you can safely ignore
+        this email.
+      </p>
+
+      <hr
+        style="
+          border: 0;
+          border-top: 1px solid #eeeeee;
+          margin: 30px 0;
+        "
+      />
+
+      <p
+        style="
+          font-size: 12px;
+          color: #999999;
+          text-align: center;
+        "
+      >
+        © 2026 Your App. All rights reserved.
+      </p>
+    </div>
+  </body>
+</html>

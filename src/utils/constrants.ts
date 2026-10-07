@@ -1,0 +1,1 @@
+export const TIMESTAMP = 'CURRENT_TIMESTAMP(6)';
