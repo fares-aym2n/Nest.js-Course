@@ -1,34 +1,30 @@
-import { INestApplication } from '@nestjs/common';
+import { Body, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import request from 'supertest';
 import * as bcrypt from 'bcryptjs';
-import { Product } from '../src/products/products.entity';
-import { createProductDTO } from '../src/products/dto/create-product.dto';
 import { AppModule } from '../src/app.module';
 import { User } from '../src/users/users.entity';
 import { UserTypes } from '../src/utils/user-types';
+import { createReviewDTO } from '../src/reviews/dto/create-reviews.dto';
+import { Review } from '../src/reviews/reviews.entity';
+import { Product } from '../src/products/products.entity';
 
-describe('Prodcut Controller e2e', () => {
+describe('Review Controller e2e', () => {
   let app: INestApplication;
   let dataSource: DataSource;
-  let products: createProductDTO[];
+  let reviews: createReviewDTO[];
   let token: string;
-  let dto: createProductDTO = {
-    name: 'playstation',
-    description: 'I Like It',
-    price: 1000,
+  let dto: createReviewDTO = {
+    review: 'I like it',
+    rating: 4.3,
   };
+  let productId: number;
   beforeEach(async () => {
-    products = [
-      { name: 'book', description: 'I Love It', price: 1000 },
-      { name: 'stove', description: 'I Love It', price: 1200 },
-      { name: 'tv', description: 'I Love It', price: 300 },
-      {
-        name: 'playstation',
-        description: 'I Love It',
-        price: 1500,
-      },
+    reviews = [
+      { review: 'I like it', rating: 4 },
+      { review: 'I like it', rating: 4 },
+      { review: 'I like it', rating: 4 },
     ];
 
     const module: TestingModule = await Test.createTestingModule(
@@ -62,18 +58,34 @@ describe('Prodcut Controller e2e', () => {
       .post('/api/users/auth/login')
       .send({ email: 'test@gmail.com', password: 'test1234' });
     token = body.token;
+
+    const productResponse = await request(app.getHttpServer())
+      .post(`/api/products`)
+      .send({
+        name: 'IPhone',
+        description: 'I Like it ',
+        price: 1000,
+      })
+      .set('Authorization', `Bearer ${token}`);
+    productId = productResponse.body.id;
   });
   afterEach(async () => {
     await dataSource
       .createQueryBuilder()
       .delete()
-      .from(Product)
+      .from(Review)
       .execute();
 
     await dataSource
       .createQueryBuilder()
       .delete()
       .from(User)
+      .execute();
+
+    await dataSource
+      .createQueryBuilder()
+      .delete()
+      .from(Product)
       .execute();
     await app.close();
   });
@@ -83,139 +95,120 @@ describe('Prodcut Controller e2e', () => {
       await dataSource
         .createQueryBuilder()
         .insert()
-        .into(Product)
-        .values(products)
+        .into(Review)
+        .values(reviews)
         .execute();
     });
-    test('shuold return products based on page number', async () => {
+    test('shuold return all reviews', async () => {
       const result = await request(app.getHttpServer()).get(
-        '/api/products?page=1',
+        '/api/reviews',
       );
       expect(result.status).toBe(200);
-      expect(result.body.products).toHaveLength(4);
-    });
-
-    test('shuold return products based on page number & name', async () => {
-      const result = await request(app.getHttpServer()).get(
-        '/api/products?page=1&name=book',
-      );
-      expect(result.status).toBe(200);
-      expect(result.body.products).toHaveLength(1);
-    });
-
-    test('shuold return products based on page number & name & minPrice & maxPrice', async () => {
-      const result = await request(app.getHttpServer()).get(
-        '/api/products?page=1&minPrice=1100&maxPrice=1600',
-      );
-      expect(result.status).toBe(200);
-      expect(result.body.products).toHaveLength(2);
+      expect(result.body.reviews).toHaveLength(3);
     });
   });
 
   describe('Post', () => {
-    test('should create product', async () => {
+    beforeEach(async () => {});
+    test('should  create review', async () => {
       const result = await request(app.getHttpServer())
-        .post('/api/products')
+        .post(`/api/reviews/${productId}`)
         .send(dto)
         .set('Authorization', `Bearer ${token}`);
       expect(result.status).toBe(201);
+      expect(result.body.id).toBeDefined();
       expect(result.body).toMatchObject(dto);
     });
 
-    test('return return status code 400 if name is less than 3 char', async () => {
+    test('should return return status code 400 if rating is less than 1 or greater than 5', async () => {
       const result = await request(app.getHttpServer())
-        .post('/api/products')
-        .send({ ...dto, name: 'pc' })
+        .post(`/api/reviews/${productId}`)
+        .send({ ...dto, rating: 10 })
         .set('Authorization', `Bearer ${token}`);
       expect(result.status).toBe(400);
     });
 
-    test('return return status code 400 if price is lessthan 5', async () => {
+    test('shuold return status code 401 if not provide token', async () => {
       const result = await request(app.getHttpServer())
-        .post('/api/products')
-        .send({ ...dto, price: 4 })
-        .set('Authorization', `Bearer ${token}`);
-      expect(result.status).toBe(400);
-    });
-
-    test('return status code 401 if not provide token', async () => {
-      const result = await request(app.getHttpServer())
-        .post('/api/products')
+        .post(`/api/reviews/${productId}`)
         .send(dto);
       expect(result.status).toBe(401);
     });
   });
 
   describe('Get /:id', () => {
-    test('return product based on id', async () => {
+    test('return review based on id', async () => {
       const { body } = await request(app.getHttpServer())
-        .post('/api/products')
+        .post(`/api/reviews/${productId}`)
         .send(dto)
         .set('Authorization', `Bearer ${token}`);
+
       const response = await request(app.getHttpServer()).get(
-        `/api/products/${body.id}`,
+        `/api/reviews/${body.id}`,
       );
+
       expect(response.status).toBe(200);
       expect(response.body.id).toBe(body.id);
     });
 
-    test('retun status code 404 if product not found', async () => {
+    test('retun status code 404 if review not found', async () => {
       const response = await request(app.getHttpServer()).get(
-        `/api/products/1`,
+        `/api/reviews/1`,
       );
       expect(response.status).toBe(404);
     });
-    test('retun status code 400 if product id is invalid', async () => {
+
+    test('retun status code 400 if review id is invalid', async () => {
       const response = await request(app.getHttpServer()).get(
-        `/api/products/abc`,
+        `/api/reviews/abc`,
       );
       expect(response.status).toBe(400);
     });
   });
 
   describe('Patch /:id', () => {
-    test('updated product based on id', async () => {
+    test('updated review based on id', async () => {
       const { body } = await request(app.getHttpServer())
-        .post('/api/products')
+        .post(`/api/reviews/${productId}`)
         .send(dto)
         .set('Authorization', `Bearer ${token}`);
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/products/${body.id}`)
-        .send({ name: 'updated' })
+        .patch(`/api/reviews/${body.id}`)
+        .send({ review: 'updated' })
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.id).toBe(body.id);
-      expect(response.body.name).toBe('updated');
+      expect(response.body.review).toBe('updated');
     });
 
-    test('retun status code 404 if product not found', async () => {
+    test('retun status code 404 if review not found', async () => {
       const response = await request(app.getHttpServer())
-        .patch(`/api/products/100`)
-        .send({ name: 'Updated' })
+        .patch(`/api/review/100`)
+        .send({ review: 'updated' })
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(404);
     });
 
-    test('retun status code 400 if product id is invalid', async () => {
+    test('retun status code 400 if review id is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .patch(`/api/products/abc`)
-        .send({ name: 'updated' })
+        .patch(`/api/reviews/abc`)
+        .send({ review: 'updated' })
         .set('Authorization', `Bearer ${token}`);
       expect(response.status).toBe(400);
     });
 
-    test('retun status code 400 if product name less than 3 char', async () => {
+    test('retun status code 400 if review rating less than 1 or greater than 10', async () => {
       const { body } = await request(app.getHttpServer())
-        .post('/api/products')
+        .post(`/api/reviews/${productId}`)
         .send(dto)
         .set('Authorization', `Bearer ${token}`);
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/products/${body.id}`)
-        .send({ name: 'Up' })
+        .patch(`/api/reviews/${body.id}`)
+        .send({ rating: 9 })
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(400);
@@ -223,42 +216,42 @@ describe('Prodcut Controller e2e', () => {
   });
 
   describe('Delete /:id', () => {
-    test('delete product based on id', async () => {
+    test('delete review based on id', async () => {
       const { body } = await request(app.getHttpServer())
-        .post('/api/products')
+        .post(`/api/reviews/${productId}`)
         .send(dto)
         .set('Authorization', `Bearer ${token}`);
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/products/${body.id}`)
+        .delete(`/api/reviews/${body.id}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(204);
     });
 
-    test('retun status code 404 if product not found', async () => {
+    test('retun status code 404 if review not found', async () => {
       const response = await request(app.getHttpServer())
-        .delete(`/api/products/100`)
+        .delete(`/api/reviews/100`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(404);
     });
 
-    test('retun status code 400 if product id is invalid', async () => {
+    test('retun status code 400 if review id is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .delete(`/api/products/abc`)
+        .delete(`/api/reviews/abc`)
         .set('Authorization', `Bearer ${token}`);
       expect(response.status).toBe(400);
     });
 
     test('retun status code 401 if token is not provide', async () => {
       const { body } = await request(app.getHttpServer())
-        .post('/api/products')
+        .post(`/api/reviews/${productId}`)
         .send(dto)
         .set('Authorization', `Bearer ${token}`);
 
       const response = await request(app.getHttpServer()).delete(
-        `/api/products/${body.id}`,
+        `/api/reviews/${body.id}`,
       );
       expect(response.status).toBe(401);
     });
