@@ -79,16 +79,8 @@ export class ReviewService {
       user,
       product,
     });
-    await this.reviewRepository.save(newReview);
+    return await this.reviewRepository.save(newReview);
 
-    return {
-      review: newReview.review,
-      rating: newReview.rating,
-      userId: user.id,
-      productId: product.id,
-      createdAt: newReview.createdAt,
-      updatedAt: newReview.updatedAt,
-    };
   }
   /**
    * Update review
@@ -124,8 +116,8 @@ export class ReviewService {
       review.user.id === payload.id ||
       payload.role == UserTypes.ADMIN
     ) {
-      await this.reviewRepository.remove(review);
-      return 'Review deleted successfuly';
+      return await this.reviewRepository.remove(review);
+      
     }
     throw new ForbiddenException(
       'You are not allawed to update review',

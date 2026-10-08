@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -43,7 +44,7 @@ export class ReviewController {
   // POST: ~/api/reviews/:id
   @Post('/:id')
   @UseGuards(AuthRolesGuard)
-  @Roles(UserTypes.USER)
+  @Roles(UserTypes.USER, UserTypes.ADMIN)
   @ApiSecurity('bearer')
   @ApiParam({
     name: 'id',
@@ -66,7 +67,7 @@ export class ReviewController {
   // PATCH: ~/api/reviews/:id
   @Patch('/:id')
   @UseGuards(AuthRolesGuard)
-  @Roles(UserTypes.USER)
+  @Roles(UserTypes.USER, UserTypes.ADMIN)
   @ApiSecurity('bearer')
   public updateReview(
     @Param('id', ParseIntPipe) reviewId: number,
@@ -77,6 +78,7 @@ export class ReviewController {
   }
 
   // DELETE: ~/api/reviews/:id
+  @HttpCode(204)
   @Delete('/:id')
   @UseGuards(AuthRolesGuard)
   @Roles(UserTypes.ADMIN, UserTypes.USER)
