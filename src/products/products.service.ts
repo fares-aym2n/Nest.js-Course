@@ -97,6 +97,5 @@ export class ProductService {
   public async deleteOneBy(id: number) {
     const product = await this.getOneBy(id);
     await this.productsRepository.remove(product);
-    return { message: 'Product deleted successfuly' };
   }
 }
