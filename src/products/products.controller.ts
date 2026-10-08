@@ -92,7 +92,7 @@ export class ProductController {
   @Roles(UserTypes.ADMIN)
   @ApiSecurity('bearer')
   public updateProduct(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: updateProductTDO,
   ) {
     return this.productService.updateOneBy(id, body);
@@ -104,7 +104,7 @@ export class ProductController {
   @UseGuards(AuthRolesGuard)
   @Roles(UserTypes.ADMIN)
   @ApiSecurity('bearer')
-  public deleteProduct(@Param('id') id: number) {
+  public deleteProduct(@Param('id', ParseIntPipe) id: number) {
     return this.productService.deleteOneBy(id);
   }
 }
