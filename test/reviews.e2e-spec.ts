@@ -1,4 +1,4 @@
-import { Body, INestApplication } from '@nestjs/common';
+import {INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import request from 'supertest';
@@ -15,7 +15,7 @@ describe('Review Controller e2e', () => {
   let dataSource: DataSource;
   let reviews: createReviewDTO[];
   let token: string;
-  let dto: createReviewDTO = {
+  const dto: createReviewDTO = {
     review: 'I like it',
     rating: 4.3,
   };

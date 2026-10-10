@@ -14,7 +14,7 @@ describe('Prodcut Controller e2e', () => {
   let dataSource: DataSource;
   let products: createProductDTO[];
   let token: string;
-  let dto: createProductDTO = {
+  const dto: createProductDTO = {
     name: 'playstation',
     description: 'I Like It',
     price: 1000,

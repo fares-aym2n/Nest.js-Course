@@ -1,4 +1,4 @@
-import { accessToken, payloadTypes } from '../utils/payload';
+import {payloadTypes } from '../utils/payload';
 
 declare global {
   namespace Express {
