@@ -1,18 +1,4 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "src/main.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": "node_modules/pg/**"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "src/main.ts"
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nestjs"
 }
