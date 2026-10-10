@@ -18,19 +18,20 @@ import {
   ThrottlerModule,
 } from '@nestjs/throttler';
 import { dataSourceOptions } from '../db/data-source';
+import { AppController } from './app.controller';
 
 export const { ObserveModule, ObserveInstrument } =
   createObserveModule();
 
 @Module({
+  controllers: [AppController],
   imports: [
     ProductModule,
     UserModule,
     ReviewModule,
     UploadsModule,
     MailModule,
-    TypeOrmModule.forRoot(dataSourceOptions     
-    ),
+    TypeOrmModule.forRoot(dataSourceOptions),
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -42,7 +43,10 @@ export const { ObserveModule, ObserveInstrument } =
 
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV}`,
+      envFilePath:
+        process.env.NODE_ENV !== 'production'
+          ? `.env.${process.env.NODE_ENV}`
+          : '.env',
     }),
   ],
   providers: [
@@ -55,9 +59,12 @@ export const { ObserveModule, ObserveInstrument } =
       useClass: ThrottlerGuard,
     },
     {
-      provide:APP_PIPE,
-      useValue:new ValidationPipe({whitelist:true,forbidNonWhitelisted:true})
-    }
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    },
   ],
 })
 export class AppModule implements NestModule {
