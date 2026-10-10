@@ -1,28 +1,23 @@
 import {
   ClassSerializerInterceptor,
   Module,
-  RequestMethod,
   ValidationPipe,
 } from '@nestjs/common';
 import { ProductModule } from './products/products.module';
 import { UserModule } from './users/users.module';
 import { ReviewModule } from './reviews/reviews.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Product } from './products/products.entity';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Review } from './reviews/reviews.entity';
-import { User } from './users/users.entity';
+import { ConfigModule} from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { UploadsModule } from './uploads/uploads.module';
 import { MailModule } from './mails/mail.module';
 import { NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
 import { createObserveModule } from '@nestjs/observe';
 import {
   ThrottlerGuard,
   ThrottlerModule,
 } from '@nestjs/throttler';
-import { AuthGuard } from './users/guards/auth.guard';
+import { dataSourceOptions } from '../db/data-source';
 
 export const { ObserveModule, ObserveInstrument } =
   createObserveModule();
@@ -34,21 +29,8 @@ export const { ObserveModule, ObserveInstrument } =
     ReviewModule,
     UploadsModule,
     MailModule,
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'postgres',
-          database: config.get<string>('DB_NAME'),
-          host: config.get<string>('DB_HOST'),
-          port: config.get<number>('DB_PORT'),
-          username: config.get<string>('DB_USERNAME'),
-          password: config.get<string>('DB_PASSWORD'),
-          synchronize: process.env.NODE_ENV !== 'production',
-          entities: [Product, Review, User],
-        };
-      },
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions     
+    ),
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -85,3 +67,19 @@ export class AppModule implements NestModule {
     // });
   }
 }
+
+//Local Data Base 
+
+// inject: [ConfigService],
+//       useFactory: (config: ConfigService) => {
+//         return {
+//           type: 'postgres',
+//           database: config.get<string>('DB_NAME'),
+//           host: config.get<string>('DB_HOST'),
+//           port: config.get<number>('DB_PORT'),
+//           username: config.get<string>('DB_USERNAME'),
+//           password: config.get<string>('DB_PASSWORD'),
+//           synchronize: process.env.NODE_ENV !== 'production',
+//           entities: [Product, Review, User],
+//         };
+//       },

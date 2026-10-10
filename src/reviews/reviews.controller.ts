@@ -21,7 +21,6 @@ import { UserTypes } from '../utils/user-types';
 import { updateReviewDTO } from './dto/upate-review.dto';
 import {
   ApiParam,
-  ApiQuery,
   ApiSecurity,
 } from '@nestjs/swagger';
 

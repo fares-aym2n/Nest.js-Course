@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ReviewController } from './reviews.controller';
 import { ReviewService } from './reviews.service';
 import { TypeOrmModule } from '@nestjs/typeorm';

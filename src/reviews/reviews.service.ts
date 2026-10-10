@@ -10,9 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { createReviewDTO } from './dto/create-reviews.dto';
 import { UserService } from '../users/users.service';
 import { ProductService } from '../products/products.service';
-import { UpdateResult } from 'typeorm/browser';
 import { updateReviewDTO } from './dto/upate-review.dto';
-import { throwError } from 'rxjs';
 import { payloadTypes } from '../utils/payload';
 import { UserTypes } from '../utils/user-types';
 
