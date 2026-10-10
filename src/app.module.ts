@@ -12,16 +12,12 @@ import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { UploadsModule } from './uploads/uploads.module';
 import { MailModule } from './mails/mail.module';
 import { NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { createObserveModule } from '@nestjs/observe';
 import {
   ThrottlerGuard,
   ThrottlerModule,
 } from '@nestjs/throttler';
 import { dataSourceOptions } from '../db/data-source';
 import { AppController } from './app.controller';
-
-export const { ObserveModule, ObserveInstrument } =
-  createObserveModule();
 
 @Module({
   controllers: [AppController],
